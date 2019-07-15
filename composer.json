@@ -1,0 +1,39 @@
+{
+    "name": "flarum/auth-vk",
+    "description": "Allow users to log in with Vkontakte.",
+    "type": "flarum-extension",
+    "keywords": ["authentication"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nikolas Denis",
+            "email": "design.by.niko.las@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/NikoVonLas/flarum-auth-vk/issues",
+        "source": "https://github.com/NikoVonLas/flarum-auth-vk"
+    },
+    "require": {
+        "flarum/core": "^0.1.0-beta.9",
+        "vkcom/vk-php-sdk": "^5.100"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Auth\\Vk\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        },
+        "flarum-extension": {
+            "title": "Vkontakte Login",
+            "icon": {
+                "name": "fab fa-vk",
+                "backgroundColor": "#4a76a8",
+                "color": "#fff"
+            }
+        }
+    }
+}
