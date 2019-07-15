@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of Flarum.
- *
- * (c) Toby Zerner <toby.zerner@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Flarum\Auth\Vk;
 
 use Exception;
@@ -17,6 +8,10 @@ use Flarum\Forum\Auth\ResponseFactory;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use VK\OAuth\VKOAuth;
+use VK\OAuth\VKOAuthDisplay;
+use VK\OAuth\Scopes\VKOAuthUserScope;
+use VK\OAuth\VKOAuthResponseType;
+use VK\Client\VKApiClient;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -54,19 +49,20 @@ class VkAuthController implements RequestHandlerInterface
     /**
      * @param Request $request
      * @return ResponseInterface
-     * @throws \League\OAuth2\Client\Provider\Exception\FacebookProviderException
+     * @throws \VK\Exceptions\VKOAuthException
+     * @throws \VK\Exceptions\VKApiExceptio
      * @throws Exception
      */
     public function handle(Request $request): ResponseInterface
     {
-        $provider = new VK\OAuth\VKOAuth();
+        $provider = new VKOAuth();
         $redirectUri = $this->url->to('forum')->route('auth.vk');
         $clientId = $this->settings->get('flarum-auth-vk.client_id');
         $clientSecret = $this->settings->get('flarum-auth-vk.client_secret');
-        $display = VK\OAuth\VKOAuthDisplay::POPUP;
-        $scope = [VK\OAuth\Scopes\VKOAuthUserScope::EMAIL];
+        $display = VKOAuthDisplay::POPUP;
+        $scope = [VKOAuthUserScope::EMAIL];
 
-        $authUrl = $provider->getAuthorizeUrl(VK\OAuth\VKOAuthResponseType::CODE, $clientId, $redirectUri, $display, $scope);
+        $authUrl = $provider->getAuthorizeUrl(VKOAuthResponseType::CODE, $clientId, $redirectUri, $display, $scope);
 
         $session = $request->getAttribute('session');
         $queryParams = $request->getQueryParams();
@@ -84,7 +80,7 @@ class VkAuthController implements RequestHandlerInterface
           $response = $oauth->getAccessToken($clientId, $clientSecret, $redirectUri, $code);
           $accessToken = $response['access_token'];
 
-          $vk = new VK\Client\VKApiClient();
+          $vk = new VKApiClient();
           $responseUser = $vk->users()->get($accessToken, [
               'user_ids'  => [$response['user_id']],
               'fields'    => ['photo_100', 'nickname', 'connections'],
