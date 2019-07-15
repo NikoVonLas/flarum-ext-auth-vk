@@ -1,5 +1,3 @@
-import app from 'flarum/app';
-
 import VkSettingsModal from './components/VkSettingsModal';
 
 app.initializers.add('flarum-auth-vk', () => {

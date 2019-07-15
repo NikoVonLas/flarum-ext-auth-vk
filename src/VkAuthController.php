@@ -89,17 +89,23 @@ class VkAuthController implements RequestHandlerInterface
           if (!isset($responseUser[0])) {
             throw new \Exception('Error while get User info from VK');
           }
-
-          $user = $responseUser[0];
+          
           $username = !empty($responseUser['nickname']) ? $responseUser['nickname'] : ($responseUser['first_name'] . ' ' . $responseUser['last_name']);
+          $user = [
+            'email' => $response['email'],
+            'avatar' => $responseUser['photo_100'],
+            'username' => $username,
+            'payload' => $response
+          ];
+
           return $this->response->make(
               'vk', $response['user_id'],
               function (Registration $registration) use ($user) {
                   $registration
-                      ->provideTrustedEmail($response['email'])
-                      ->provideAvatar($responseUser['photo_100'])
-                      ->suggest('username', $username)
-                      ->setPayload($response);
+                      ->provideTrustedEmail($user['email'])
+                      ->provideAvatar($user['avatar'])
+                      ->suggest('username', $user['username'])
+                      ->setPayload($user['payload']);
               }
           );
         }
