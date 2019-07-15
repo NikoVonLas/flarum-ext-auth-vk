@@ -57,8 +57,8 @@ class VkAuthController implements RequestHandlerInterface
     {
         $provider = new VKOAuth();
         $redirectUri = $this->url->to('forum')->route('auth.vk');
-        $clientId = $this->settings->get('flarum-auth-vk.client_id');
-        $clientSecret = $this->settings->get('flarum-auth-vk.client_secret');
+        $clientId = trim($this->settings->get('flarum-auth-vk.client_id'));
+        $clientSecret = trim($this->settings->get('flarum-auth-vk.client_secret'));
         $display = VKOAuthDisplay::POPUP;
         $scope = [VKOAuthUserScope::EMAIL];
 
@@ -76,8 +76,7 @@ class VkAuthController implements RequestHandlerInterface
           $errorMsg = array_get($queryParams, 'error_description');
           throw new \Exception($errorMsg);
         } elseif ($code) {
-          $redirectUri = $this->url->to('forum')->route('auth.vk') . '&code=' . $code;
-          $response = $oauth->getAccessToken($clientId, $clientSecret, $redirectUri, $code);
+          $response = $provider->getAccessToken($clientId, $clientSecret, $redirectUri, $code);
           $accessToken = $response['access_token'];
 
           $vk = new VKApiClient();
@@ -89,11 +88,11 @@ class VkAuthController implements RequestHandlerInterface
           if (!isset($responseUser[0])) {
             throw new \Exception('Error while get User info from VK');
           }
-          
-          $username = !empty($responseUser['nickname']) ? $responseUser['nickname'] : ($responseUser['first_name'] . ' ' . $responseUser['last_name']);
+
+          $username = !empty($responseUser[0]['nickname']) ? $responseUser[0]['nickname'] : ($responseUser[0]['first_name'] . ' ' . $responseUser[0]['last_name']);
           $user = [
             'email' => $response['email'],
-            'avatar' => $responseUser['photo_100'],
+            'avatar' => $responseUser[0]['photo_100'],
             'username' => $username,
             'payload' => $response
           ];
@@ -101,11 +100,12 @@ class VkAuthController implements RequestHandlerInterface
           return $this->response->make(
               'vk', $response['user_id'],
               function (Registration $registration) use ($user) {
-                  $registration
-                      ->provideTrustedEmail($user['email'])
-                      ->provideAvatar($user['avatar'])
+                  $registration->provideTrustedEmail($user['email'])
                       ->suggest('username', $user['username'])
                       ->setPayload($user['payload']);
+                  if (!empty($user['avatar'])) {
+                    $registration->provideAvatar($user['avatar']);
+                  }
               }
           );
         }
