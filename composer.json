@@ -1,5 +1,5 @@
 {
-    "name": "flarum/auth-vk",
+    "name": "nikovonlas/flarum-ext-auth-vk",
     "description": "Allow users to log in with Vkontakte.",
     "type": "flarum-extension",
     "keywords": ["authentication"],
@@ -11,8 +11,8 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/NikoVonLas/flarum-auth-vk/issues",
-        "source": "https://github.com/NikoVonLas/flarum-auth-vk"
+        "issues": "https://github.com/NikoVonLas/flarum-ext-auth-vk/issues",
+        "source": "https://github.com/NikoVonLas/flarum-ext-auth-vk"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.9",
