@@ -100,11 +100,13 @@ class VkAuthController implements RequestHandlerInterface
           return $this->response->make(
               'vk', $response['user_id'],
               function (Registration $registration) use ($user) {
-                  $registration->provideTrustedEmail($user['email'])
-                      ->suggestUsername($this->translit($user['username']))
+                  $registration->suggestUsername($this->translit($user['username']))
                       ->setPayload($user['payload']);
                   if (!empty($user['avatar'])) {
                     $registration->provideAvatar($user['avatar']);
+                  }
+                  if (!empty($user['email'])) {
+                    $registration->provideTrustedEmail($user['email']);
                   }
               }
           );
